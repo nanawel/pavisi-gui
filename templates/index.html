@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}PAViSI{% endblock %}
+
+{% block head %}
+{{ parent() }}
+{% endblock %}
+
+{% block content %}
+<section class="hero is-medium is-primary">
+    <div class="hero-body">
+        <p class="title">
+            PAViSI Search
+        </p>
+        <div class="subtitle">
+            <form action="{{ url_for('search') }}" method="get">
+                <div class="field has-addons">
+                    <div class="control is-expanded">
+                        <input class="input" type="text" name="query" placeholder="Search..." value="{{query}}">
+                    </div>
+                    <div class="control">
+                        <button class="button is-link">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

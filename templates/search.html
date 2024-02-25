@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}{{ parent() }}Search Results{% endblock %}
+
+{% block head %}
+{{ parent() }}
+{% endblock %}
+
+{% block content %}
+<section class="hero is-small is-info">
+    <div class="hero-body">
+        <p class="title"><a href="{{ url_for('index') }}">PAViSI Search</a></p>
+        <form action="{{ url_for('search') }}" method="get">
+            <div class="field has-addons">
+                <div class="control is-expanded">
+                    <input class="input" type="text" name="query" placeholder="Search..." value="{{query}}">
+                </div>
+                <div class="control">
+                    <button class="button is-link">Search</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<div id="results-container" class="box">
+    <h2 class="subtitle">Results for <strong>{{query}}</strong> {{hits_shown}} / {{hits_total}}</h2>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Score</th>
+                    <th>File</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for hit in hits %}
+                <tr>
+                    <td>{{hit.score}}</td>
+                    <td>{{hit.file}}</td>
+                </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}
