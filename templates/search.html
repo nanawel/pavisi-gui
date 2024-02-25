@@ -24,7 +24,10 @@
 </section>
 
 <div id="results-container" class="box">
-    <h2 class="subtitle">Results for <strong>{{query}}</strong> {{hits_shown}} / {{hits_total}}</h2>
+    <h2 class="subtitle is-flex">
+        <span class="is-flex-grow-1">Results for <strong>{{query}}</strong></span>
+        <span class="has-text-right">({{hits_shown}} / {{hits_total}})</span>
+    </h2>
     <div class="table-container">
         <table class="table">
             <thead>
@@ -43,5 +46,13 @@
             {% endfor %}
         </table>
     </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ parent() }}
+<div class="content has-text-centered has-text-grey-light">
+    <small>Using index <span class="is-family-monospace has-text-grey-dark">{{_config['elasticsearch']['index']}}</span>
+        at <span class="is-family-monospace has-text-grey-dark">{{_config['elasticsearch']['url']}}</span></small>
 </div>
 {% endblock %}

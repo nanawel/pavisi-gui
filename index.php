@@ -7,7 +7,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 // Assets handling with PHP embedded server
 if (PHP_SAPI === 'cli-server') {
-    $url  = parse_url($_SERVER['REQUEST_URI']);
+    $url = parse_url($_SERVER['REQUEST_URI']);
     $file = __DIR__ . $url['path'];
     if (str_starts_with(realpath($file), realpath('./assets'))) {
         if (is_file($file)) {
@@ -76,7 +76,8 @@ $app->get(
             'query' => $query,
             'hits_total' => $results['hits']['total']['value'] ?? 0,
             'hits_shown' => count($results['hits']['hits']),
-            'hits' => $processedResults
+            'hits' => $processedResults,
+            '_config' => $config
         ]);
     })
     ->setName('search')
