@@ -67,7 +67,7 @@ $app->get(
         $processedResults = [];
         foreach ($results['hits']['hits'] as $hit) {
             $processedResults[] = [
-                'file' => $hit['fields']['filepath'],
+                'file' => $hit['fields']['filepath'][0],
                 'score' => round($hit['_score'], 2)
             ];
         }
