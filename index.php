@@ -60,14 +60,14 @@ $app->get(
                     ]
                 ],
                 '_source' => false,
-                'fields' => ['_id']
+                'fields' => ['filepath']
             ]
         ]);
 
         $processedResults = [];
         foreach ($results['hits']['hits'] as $hit) {
             $processedResults[] = [
-                'file' => urldecode($hit['_id']),
+                'file' => $hit['filepath'],
                 'score' => round($hit['_score'], 2)
             ];
         }
