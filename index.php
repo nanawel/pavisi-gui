@@ -60,14 +60,22 @@ $app->get(
                     ]
                 ],
                 '_source' => false,
-                'fields' => ['filepath']
+                'fields' => [
+                    'filepath',
+                    'filemtime',
+                    'filesize',
+                ]
             ]
         ]);
 
         $processedResults = [];
         foreach ($results['hits']['hits'] as $hit) {
             $processedResults[] = [
+                'id' => $hit['_id'],
                 'file' => $hit['fields']['filepath'][0],
+                'filepath' => $hit['fields']['filepath'][0],
+                'filemtime' => $hit['fields']['filemtime'][0],
+                'filesize' => $hit['fields']['filesize'][0],
                 'score' => round($hit['_score'], 2)
             ];
         }

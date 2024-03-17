@@ -29,7 +29,7 @@
         <span class="has-text-right">({{hits_shown}} / {{hits_total}})</span>
     </h2>
     <div class="table-container">
-        <table class="table">
+        <table class="table is-fullwidth is-striped">
             <thead>
                 <tr>
                     <th>Score</th>
@@ -39,11 +39,22 @@
             <tbody>
             {% for hit in hits %}
                 <tr>
-                    <td>{{hit.score}}</td>
-                    <td>{{hit.file}}</td>
+                    <td>
+                        <span class="tag is-info">{{hit.score}}</span>
+                    </td>
+                    <td>
+                        <div class="filepath has-text-weight-semibold">{{hit.filepath}}</div>
+                        <div class="file-details is-size-7">
+                            <span class="file-id has-text-grey">ID {{hit.id}}</span>
+                            |
+                            <span class="filesize has-text-grey">{{hit.filesize}} bytes</span>
+                            |
+                            <span class="filemtime has-text-grey">{{hit.filemtime}}</span>
+                        </div>
+                    </td>
                 </tr>
-            </tbody>
             {% endfor %}
+            </tbody>
         </table>
     </div>
 </div>
