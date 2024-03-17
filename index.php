@@ -49,44 +49,56 @@ $app->get(
         $client = \Elasticsearch\ClientBuilder::create()
             ->setHosts([$config['elasticsearch']['url']])
             ->build();
-        $results = $client->search([
-            'index' => $config['elasticsearch']['index'],
-            'body'  => [
-                'size' => '50',
-                'query' => [
-                    'query_string' => [
-                        'query' => $query,
-                        'default_field' => 'text'
+
+        try {
+            $results = $client->search([
+                'index' => $config['elasticsearch']['index'],
+                'body'  => [
+                    'size' => '50',
+                    'query' => [
+                        'query_string' => [
+                            'query' => $query,
+                            'default_field' => 'text'
+                        ]
+                    ],
+                    '_source' => false,
+                    'fields' => [
+                        'filepath',
+                        'filemtime',
+                        'filesize',
                     ]
-                ],
-                '_source' => false,
-                'fields' => [
-                    'filepath',
-                    'filemtime',
-                    'filesize',
                 ]
-            ]
-        ]);
+            ]);
+            $processedResults = [];
+            foreach ($results['hits']['hits'] as $hit) {
+                $processedResults[] = [
+                    'id' => $hit['_id'],
+                    'file' => $hit['fields']['filepath'][0],
+                    'filepath' => $hit['fields']['filepath'][0],
+                    'filemtime' => $hit['fields']['filemtime'][0],
+                    'filesize' => $hit['fields']['filesize'][0],
+                    'score' => round($hit['_score'], 2)
+                ];
+            }
 
-        $processedResults = [];
-        foreach ($results['hits']['hits'] as $hit) {
-            $processedResults[] = [
-                'id' => $hit['_id'],
-                'file' => $hit['fields']['filepath'][0],
-                'filepath' => $hit['fields']['filepath'][0],
-                'filemtime' => $hit['fields']['filemtime'][0],
-                'filesize' => $hit['fields']['filesize'][0],
-                'score' => round($hit['_score'], 2)
-            ];
+            return $view->render($response, 'search.html', [
+                'query' => $query,
+                'hits_total' => $results['hits']['total']['value'] ?? 0,
+                'hits_shown' => count($results['hits']['hits']),
+                'hits' => $processedResults,
+                '_config' => $config
+            ]);
+        } catch (\Throwable $e) {
+            return $view->render($response, 'search.html', [
+                'query' => $query,
+                'error' => [
+                    'type' => get_class($e),
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ],
+                '_config' => $config
+            ]);
         }
-
-        return $view->render($response, 'search.html', [
-            'query' => $query,
-            'hits_total' => $results['hits']['total']['value'] ?? 0,
-            'hits_shown' => count($results['hits']['hits']),
-            'hits' => $processedResults,
-            '_config' => $config
-        ]);
     })
     ->setName('search')
 ;
