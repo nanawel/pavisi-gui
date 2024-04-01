@@ -67,6 +67,47 @@
             </table>
         </div>
     </div>
+    <nav class="pagination" role="navigation" aria-label="pagination">
+        {% if previousPage %}
+        <a href="{{ url_for('search') }}?query={{query}}&page={{previousPage}}" class="pagination-previous">Previous</a>
+        {% endif %}
+        {% if nextPage %}
+        <a href="{{ url_for('search') }}?query={{query}}&page={{nextPage}}" class="pagination-next">Next page</a>
+        {% endif %}
+        <ul class="pagination-list">
+            {% if lastPage %}
+                <li>
+                    <a href="{{ url_for('search') }}?query={{query}}&page=1"
+                       class="pagination-link {% if currentPage == 1 %}is-current{% endif %}"
+                       aria-label="Goto page 1">1</a>
+                </li>
+                {% if previousPage > 2 %}
+                <li>
+                    <span class="pagination-ellipsis">&hellip;</span>
+                </li>
+                {% endif %}
+                {% for ip in intermediatePages %}
+                    <li>
+                        <a href="{{ url_for('search') }}?query={{query}}&page={{ip}}"
+                           class="pagination-link {% if currentPage == ip %}is-current{% endif %}"
+                           aria-label="Goto page {{ip}}">{{ip}}</a>
+                    </li>
+                {% endfor %}
+                {% if secondToLastPage < (lastPage - 1) %}
+                <li>
+                    <span class="pagination-ellipsis">&hellip;</span>
+                </li>
+                {% endif %}
+                {% if currentPage != lastPage %}
+                <li>
+                    <a href="{{ url_for('search') }}?query={{query}}&page={{lastPage}}"
+                       class="pagination-link {% if currentPage == lastPage %}is-current{% endif %}"
+                       aria-label="Goto page {{lastPage}}">{{lastPage}}</a>
+                </li>
+                {% endif %}
+            {% endif %}
+        </ul>
+    </nav>
 {% endif %}
 {% endblock %}
 

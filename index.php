@@ -5,6 +5,8 @@ use Slim\Views\TwigMiddleware;
 
 require __DIR__ . '/vendor/autoload.php';
 
+define('PAGE_SIZE', getenv('PAVISIGUI_PAGE_SIZE') ?: 50);
+
 // Assets handling with PHP embedded server
 if (PHP_SAPI === 'cli-server') {
     $url = parse_url($_SERVER['REQUEST_URI']);
@@ -39,12 +41,13 @@ $app->get(
     '/search',
     function (
         \Psr\Http\Message\RequestInterface $request,
-        \Psr\Http\Message\ResponseInterface$response,
+        \Psr\Http\Message\ResponseInterface $response,
         $args
     ) use ($config) {
         $view = Twig::fromRequest($request);
 
         $query = $request->getQueryParams()['query'] ?? '';
+        $page = max(1, $request->getQueryParams()['page'] ?? 1);
 
         $client = \Elasticsearch\ClientBuilder::create()
             ->setHosts([$config['elasticsearch']['url']])
@@ -54,7 +57,8 @@ $app->get(
             $results = $client->search([
                 'index' => $config['elasticsearch']['index'],
                 'body'  => [
-                    'size' => '50',
+                    'from' => ($page - 1) * PAGE_SIZE,
+                    'size' => PAGE_SIZE,
                     'query' => [
                         'query_string' => [
                             'query' => $query,
@@ -81,11 +85,33 @@ $app->get(
                 ];
             }
 
+            $hitsTotal = $results['hits']['total']['value'] ?? 0;
+            $lastPage = (int) ($hitsTotal / PAGE_SIZE) + 1;
+            $intermediatePages = [];
+            for ($i = max($page - 1, 2); $i <= min($page + 1, $lastPage - 1); $i++) {
+                $intermediatePages[] = $i;
+            }
+            $secondPage = current($intermediatePages);
+            end($intermediatePages);
+            $secondToLastPage = current($intermediatePages);
+            reset($intermediatePages);
+
             return $view->render($response, 'search.html', [
                 'query' => $query,
-                'hits_total' => $results['hits']['total']['value'] ?? 0,
+                'hits_total' => $hitsTotal,
                 'hits_shown' => count($results['hits']['hits']),
                 'hits' => $processedResults,
+
+                // Pagination
+                'currentPage' => $page,
+                'previousPage' => $page > 1 ? $page - 1 : null,
+                'nextPage' => ($page * PAGE_SIZE) < $hitsTotal ? $page + 1 : null,
+                'lastPage' => $lastPage,
+                'secondPage' => $secondPage,
+                'intermediatePages' => $intermediatePages,
+                'secondToLastPage' => $secondToLastPage,
+
+                // Config
                 '_config' => $config
             ]);
         } catch (\Throwable $e) {
