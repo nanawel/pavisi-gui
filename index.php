@@ -62,7 +62,8 @@ $app->get(
                     'query' => [
                         'query_string' => [
                             'query' => $query,
-                            'default_field' => 'text'
+                            // Search into "filepath" and "text" but boost filepath x5
+                            'fields' => ['filepath^5', 'text']
                         ]
                     ],
                     '_source' => false,
